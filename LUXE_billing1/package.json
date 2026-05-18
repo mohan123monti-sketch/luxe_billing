@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "electron-main.cjs",
   "engines": {
     "node": "20.x"
   },
@@ -11,7 +12,9 @@
     "start": "NODE_ENV=production node server/index.js",
     "build": "vite build && esbuild server/index.ts --bundle --platform=node --target=node20 --outfile=server/index.js --external:vite --external:better-sqlite3 --external:express --external:cors --external:morgan --external:dotenv --external:jsonwebtoken --external:bcryptjs --external:drizzle-orm --format=esm",
     "clean": "rm -rf dist server/index.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "electron:dev": "npm run build && electron .",
+    "electron:build": "npm run build && electron-builder"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
@@ -50,10 +53,37 @@
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.21",
     "drizzle-kit": "^0.31.10",
+    "electron": "^42.1.0",
+    "electron-builder": "^26.8.1",
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3"
+  },
+  "build": {
+    "appId": "com.luxebilling.app",
+    "productName": "LUXE Billing System",
+    "copyright": "Copyright © 2026 LUXE Apparel",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "server/**/*.js",
+      "electron-main.cjs",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "dist/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "LUXE Billing System"
+    }
   }
 }
