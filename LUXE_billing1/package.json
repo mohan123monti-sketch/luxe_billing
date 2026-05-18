@@ -79,11 +79,12 @@
       "icon": "dist/favicon.ico"
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "LUXE Billing System"
+      "shortcutName": "LUXE Billing System",
+      "runAfterFinish": true
     }
   }
 }
