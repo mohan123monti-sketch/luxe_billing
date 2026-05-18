@@ -3,7 +3,6 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.ts';
 import productRoutes from './routes/products.ts';
 import customerRoutes from './routes/customers.ts';
@@ -12,9 +11,6 @@ import settingsRoutes from './routes/settings.ts';
 import reportRoutes from './routes/reports.ts';
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
