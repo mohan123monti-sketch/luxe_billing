@@ -4,7 +4,6 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
 import authRoutes from './routes/auth.ts';
 import productRoutes from './routes/products.ts';
 import customerRoutes from './routes/customers.ts';
@@ -35,7 +34,8 @@ async function startServer() {
   app.use('/api/reports', reportRoutes);
 
   if (!isProd) {
-    // Create Vite server in middleware mode
+    // Create Vite server in middleware mode dynamically to avoid compilation hoisting
+    const { createServer: createViteServer } = eval("require")('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'custom',
