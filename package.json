@@ -1,6 +1,9 @@
 {
   "name": "luxe-billing-root",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "build": "cd LUXE_billing1 && npm install && npm run build",
     "start": "cd LUXE_billing1 && npm run start"
