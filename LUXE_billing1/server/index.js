@@ -775,7 +775,7 @@ var __filename = fileURLToPath(import.meta.url);
 var __dirname = path.dirname(__filename);
 async function startServer() {
   const app = express();
-  const PORT = 3e3;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3e3;
   const isProd = process.env.NODE_ENV === "production";
   app.use(cors());
   app.use(morgan("dev"));
