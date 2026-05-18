@@ -1,9 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const { fork } = require('child_process');
 
 let mainWindow = null;
-let serverProcess = null;
 
 // Determine DB path in standard OS AppData/UserData directory
 const userDataPath = app.getPath('userData');
@@ -12,28 +10,10 @@ process.env.DATABASE_PATH = dbPath;
 process.env.NODE_ENV = 'production';
 process.env.PORT = '3000';
 
-function startServer() {
-  const serverScript = path.join(__dirname, 'server/index.js');
-  
-  // Fork the Express production server as a child process
-  serverProcess = fork(serverScript, [], {
-    env: {
-      ...process.env,
-      DATABASE_PATH: dbPath,
-      PORT: '3000',
-      NODE_ENV: 'production'
-    },
-    silent: false
-  });
-
-  serverProcess.on('error', (err) => {
-    console.error('Server process error:', err);
-  });
-
-  serverProcess.on('exit', (code, signal) => {
-    console.log(`Server process exited with code ${code} and signal ${signal}`);
-  });
-}
+// Start the local Express server directly inside the Electron Main process.
+// Electron has native ASAR file-system support, meaning require resolves beautifully
+// both in local development and when packaged inside the user's .exe installer!
+require('./server/index.cjs');
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -50,7 +30,7 @@ function createWindow() {
   // Remove default menus for an elegant, native desktop-app feel
   mainWindow.setMenuBarVisibility(false);
 
-  // Load the local Express production server
+  // Load the local Express server
   mainWindow.loadURL('http://localhost:3000');
 
   mainWindow.on('closed', () => {
@@ -59,25 +39,12 @@ function createWindow() {
 }
 
 app.on('ready', () => {
-  // 1. Start the local background Express server
-  startServer();
-
-  // 2. Allow a short timeout for Express to bind, then show window
-  setTimeout(createWindow, 1500);
+  // Give the server database seeds a short moment to initialize, then show window
+  setTimeout(createWindow, 1200);
 });
 
 app.on('window-all-closed', () => {
-  // Terminate background Express process when app windows close
-  if (serverProcess) {
-    serverProcess.kill();
-  }
   if (process.platform !== 'darwin') {
     app.quit();
-  }
-});
-
-app.on('quit', () => {
-  if (serverProcess) {
-    serverProcess.kill();
   }
 });
