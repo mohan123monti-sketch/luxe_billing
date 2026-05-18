@@ -181,7 +181,8 @@ function _v4(options, buf, offset) {
 var v4_default = v4;
 
 // server/db/index.ts
-var sqlite = new Database("sqlite.db");
+var dbPath = process.env.DATABASE_PATH || "sqlite.db";
+var sqlite = new Database(dbPath);
 var db = drizzle(sqlite, { schema: schema_exports });
 sqlite.exec(`
   CREATE TABLE IF NOT EXISTS users (
@@ -511,9 +512,34 @@ router4.get("/", authenticate, async (req, res) => {
   }
 });
 router4.post("/", authenticate, async (req, res) => {
-  const { customerId, items, paymentMethod, subtotal, itemDiscount, extraDiscount, gstAmount, totalAmount, notes } = req.body;
+  const { customerId: bodyCustomerId, customerName, customerPhone, items, paymentMethod, subtotal, itemDiscount, extraDiscount, gstAmount, totalAmount, notes } = req.body;
   const userId = req.user?.id || "admin-uuid";
   try {
+    let customerId = bodyCustomerId;
+    if (!customerId && (customerPhone || customerName)) {
+      let existingCustomer;
+      if (customerPhone) {
+        existingCustomer = await db.query.customers.findFirst({
+          where: eq4(customers.phone, customerPhone)
+        });
+      }
+      if (existingCustomer) {
+        customerId = existingCustomer.id;
+        if (customerName && existingCustomer.name !== customerName) {
+          await db.update(customers).set({ name: customerName }).where(eq4(customers.id, existingCustomer.id));
+        }
+      } else {
+        customerId = v4_default();
+        await db.insert(customers).values({
+          id: customerId,
+          name: customerName || "Unknown Customer",
+          phone: customerPhone || null,
+          totalSpent: 0,
+          ordersCount: 0,
+          createdAt: /* @__PURE__ */ new Date()
+        });
+      }
+    }
     const billId = `INV-${Date.now()}`;
     await db.insert(bills).values({
       id: billId,

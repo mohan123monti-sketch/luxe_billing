@@ -1,0 +1,8 @@
+{
+  "name": "luxe-billing-root",
+  "private": true,
+  "scripts": {
+    "build": "cd LUXE_billing1 && npm install && npm run build",
+    "start": "cd LUXE_billing1 && npm run start"
+  }
+}
